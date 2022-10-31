@@ -33,7 +33,7 @@ function GetStorageKeys($resourceGroupName, $storageAccountName, $credentialId){
     return $CredentialValue
 }
 
-function GetCredentialId($resourceGroupName, $storageAccountName){
+<#function GetCredentialId($resourceGroupName, $storageAccountName){
     If($(Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAccountName).KeyName -eq 'key1'){
         $credentialId = "key1"
     }
@@ -42,7 +42,7 @@ function GetCredentialId($resourceGroupName, $storageAccountName){
     }
 	rerun $credentialId
 }
-
+#>
 function AddSecretToKeyVault($resourceGroupName, $storageAccountName, $keyVaultName, $secretName, $secretvalue, $exprityDate, $activationDate){
     Write-Host "Adding Secret for credential Id : $credentialId "
     Write-Host "Resource Gorup : $resourceGroupName"
@@ -92,8 +92,9 @@ function RotateStoragekeyandKeyVaultSecret($keyVaultName,$resourceGroupName){
 				Write-Host "Secret Expiration Date : $secretExpiration"
 				Write-Host "Renew Date : $RenewDate"
                 Write-Host "`n"
+				$RotationDate = ($secretExpiration - $RenewDate).TotalDays
                 #Write-Host "$secretExpiration -eq $RenewDate -or $currentDate -gt $RenewDate"
-				if($secretExpiration -eq $RenewDate -or $currentDate -gt $RenewDate)
+				if($RotationDate -eq 2 -and $currentDate -lt $secretExpiration)
 				{
 					RegenerateStorageKeys $resourceGroupName $storageAccountName $credentialId
                     Start-Sleep -Seconds 60
@@ -119,8 +120,9 @@ function RotateStoragekeyandKeyVaultSecret($keyVaultName,$resourceGroupName){
 				Write-Host "Secret Expiration Date : $secretExpiration"
 				Write-Host "Renew Date : $RenewDate"
                 Write-Host "`n"
+				$RotationDate = ($secretExpiration - $RenewDate).TotalDays
                 #Write-Host "$secretExpiration -eq $RenewDate -or $currentDate -gt $RenewDate"
-				if($secretExpiration -eq $RenewDate -or $currentDate -gt $RenewDate)
+				if($RotationDate -eq 2 -and $currentDate -gt $secretExpiration)
 				{
 					RegenerateStorageKeys $resourceGroupName $storageAccountName $credentialId
                     Start-Sleep -Seconds 60
